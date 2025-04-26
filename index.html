@@ -3,128 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>League of Legends BOT Chat</title>
+    <title>League of Legends Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0bc4e2;
+            --secondary-color: #091428;
+            --accent-color: #c8aa6e;
+            --light-bg: #cdfafa;
+            --dark-bg: #0a1428;
+            --text-light: #f0f0f0;
+            --text-dark: #111111;
+        }
 
-    <!-- ink to External CSS -->
-    <style>/* Chatbot UI Styling */
-      body {
-          font-family: Arial, sans-serif;
-          text-align: center;
-          background-color: #f4f4f4;
-      }
-      
-      #chat-container {
-          width: 50%;
-          margin: auto;
-          height: 400px;
-          overflow-y: auto;
-          border: 2px solid #ddd;
-          border-radius: 10px;
-          background: white;
-          padding: 15px;
-          box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-      }
-      
-      .chat-message {
-          padding: 10px;
-          margin: 5px;
-          border-radius: 10px;
-          max-width: 80%;
-          display: inline-block;
-      }
-      
-      .user-message {
-          background-color: #d1e7ff;
-          text-align: right;
-          float: right;
-          clear: both;
-      }
-      
-      .bot-message {
-          background-color: #e2e2e2;
-          text-align: left;
-          float: left;
-          clear: both;
-      }
-      
-      #userInput {
-          width: 40%;
-          padding: 10px;
-          border-radius: 5px;
-          border: 1px solid #ddd;
-      }
-      #searchInput {
-        width: 40%;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        display: none; /* Hide search input initially */
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-      button {
-          padding: 10px 15px;
-          cursor: pointer;
-          background-color: #007bff;
-          color: white;
-          border: none;
-          border-radius: 5px;
-      }
-      
-      button:hover {
-          background-color: #0056b3;
-      }
-      </style>
+        body {
+            background-color: var(--dark-bg);
+            background-image: linear-gradient(135deg, #091428 0%, #0A323C 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            color: var(--secondary-color);
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            flex: 1;
+        }
+
+        #chat-container {
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            overflow-y: auto;
+            border: 2px solid var(--accent-color);
+            border-radius: 15px;
+            background: rgba(9, 20, 40, 0.8);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-message {
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 18px;
+            max-width: 75%;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background-color: var(--primary-color);
+            color: var(--text-dark);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background-color: var(--accent-color);
+            color: var(--text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .input-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 30px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        #searchInput {
+            display: none;
+        }
+
+        button {
+            padding: 15px 25px;
+            cursor: pointer;
+            background-color: var(--accent-color);
+            color: var(--text-dark);
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: #d8ba7e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(200, 170, 110, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Custom scrollbar */
+        #chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chat-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        #chat-container::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 10px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .chat-message {
+                max-width: 85%;
+            }
+            
+            button {
+                padding: 15px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="header">
+        <div class="logo">LoL</div>
+        <h1>League of Legends Chat</h1>
+    </div>
 
-    <h1>League of Legends BOT Chat</h1>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for champions, items, strategies..." />
+        <button id="searchBtn"><i class="fas fa-search"></i> Search</button>
+    </div>
+
     <div id="chat-container"></div>
-    <input type="text" id="searchInput" placeholder="Search here..." />
-    <button class="btn" id="searchBtn">🔍 Search</button>
-    <input type="text" id="userInput" placeholder="Type your message..." />
-    <button onclick="sendMessage()">Send</button>
 
-    <!-- Link to External JavaScript (placed at the bottom for better performance) -->
-    <script>// Function to format Markdown (Handles bold and italic text)
-      function formatMarkdown(text) {
-          return text
-              .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")  // Bold (**text**)
-              .replace(/\*(.*?)\*/g, "<i>$1</i>")      // Italic (*text*)
-              .replace(/\n/g, "<br>");                 // New lines
-      }
-      
-      // Function to send user message to backend and display AI response
-      function sendMessage() {
-          let userMessage = document.getElementById("userInput").value;
-          if (!userMessage) return;
-      
-          let chatbox = document.getElementById("chat-container");
-      
-          // Display user message
-          chatbox.innerHTML += `<div class="chat-message user-message"><b>You:</b> ${userMessage}</div>`;
-          document.getElementById("userInput").value = "";  // Clear input field
-      
-          // Send message to Flask backend
-          fetch("https://aichatbot-tbc1.onrender.com/chat", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ message: userMessage })
-          })
-          .then(response => response.json())
-          .then(data => {
-              let formattedResponse = formatMarkdown(data.response); // Convert Markdown to HTML
-              chatbox.innerHTML += `<div class="chat-message bot-message"><b>AI BOT:</b> ${formattedResponse}</div>`;
-              chatbox.scrollTop = chatbox.scrollHeight; // Auto-scroll
-          })
-          .catch(error => console.error("Error:", error));
-      }
-      document.getElementById("userInput").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();  // Prevent form submission if inside a form
-            sendMessage();
+    <div class="input-container">
+        <input type="text" id="userInput" placeholder="Ask about champions, items, or strategies..." />
+        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Send</button>
+    </div>
+
+    <script>
+        // Function to format Markdown
+        function formatMarkdown(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+                .replace(/\*(.*?)\*/g, "<i>$1</i>")
+                .replace(/\n/g, "<br>");
         }
-    });
-      </script>
+        
+        // Function to toggle search input visibility
+        document.getElementById("searchBtn").addEventListener("click", function() {
+            const searchInput = document.getElementById("searchInput");
+            if (searchInput.style.display === "none" || !searchInput.style.display) {
+                searchInput.style.display = "block";
+                searchInput.focus();
+                this.innerHTML = '<i class="fas fa-times"></i> Close';
+            } else {
+                searchInput.style.display = "none";
+                this.innerHTML = '<i class="fas fa-search"></i> Search';
+            }
+        });
 
+        // Function to send user message
+        function sendMessage() {
+            let userMessage = document.getElementById("userInput").value;
+            if (!userMessage) return;
+        
+            let chatbox = document.getElementById("chat-container");
+              
+            // Display user message
+            chatbox.innerHTML += `
+                <div class="chat-message user-message">
+                    <div class="message-header">You</div>
+                    ${userMessage}
+                </div>`;
+            document.getElementById("userInput").value = "";
+        
+            // Auto-scroll
+            chatbox.scrollTop = chatbox.scrollHeight;
+            
+            // Send message to backend
+            fetch("https://aichatbot-tbc1.onrender.com/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userMessage })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let formattedResponse = formatMarkdown(data.response);
+                chatbox.innerHTML += `
+                    <div class="chat-message bot-message">
+                        <div class="message-header">League Bot</div>
+                        ${formattedResponse}
+                    </div>`;
+                chatbox.scrollTop = chatbox.scrollHeight;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                chatbox.innerHTML += `
+                    <div class="chat-message bot-message">
+                        <div class="message-header">League Bot</div>
+                        Sorry, I'm having trouble connecting right now. Please try again later.
+                    </div>`;
+                chatbox.scrollTop = chatbox.scrollHeight;
+            });
+        }
+
+        // Send message on Enter key press
+        document.getElementById("userInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Show welcome message on load
+        window.onload = function() {
+            let chatbox = document.getElementById("chat-container");
+            chatbox.innerHTML = `
+                <div class="chat-message bot-message">
+                    <div class="message-header">League Bot</div>
+                    Welcome to the League of Legends Chat! Ask me anything about champions, items, strategies, or game mechanics.
+                </div>`;
+        }
+    </script>
 </body>
 </html>
